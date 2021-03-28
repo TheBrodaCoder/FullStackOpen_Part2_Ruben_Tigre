@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import Book from './Book';
 import Filter from './Filter';
 import NewEntry from './NewEntry';
 
@@ -6,8 +7,10 @@ const App = (props) => {
   const [ persons, setPersons ] = useState(props.persons);
   const [ newName, setNewName ] = useState('');
   const [ newNumber, setNewNumber ] = useState('');
-  const [ searchedPhones, setSearchedPhones] = useState([]);
   const [ stringToSearch, setStrSearch ] = useState('');
+  const [ searchedPhones, setSearchedPhones] = useState([]);
+  const [ isSearching, setIsSearching] = useState(false);
+
 
   const handleChange = (evt) => {
     evt.target.name === 'name' ? 
@@ -39,27 +42,21 @@ const App = (props) => {
   const handleSearch = (evt) => {
     evt.preventDefault();
     setStrSearch(evt.target.value);
+    if (evt.target.value === '') {
+      setIsSearching(false);
+    } else {
+      setIsSearching(true);
+    }
   }
 
   const handleKeyUp = (evt) => {
     let searchedPhone = persons.filter(person => person.name.match(new RegExp(stringToSearch, 'i')));
     setSearchedPhones(searchedPhone);
   }
+  
+  
 
-  const renderedNumbers = 
-  stringToSearch === '' ? 
-  (
-    persons.map(
-      person => <li key={person.name + '_' + persons.length}>{person.name}  {person.number}</li>
-    )
-  )
-  :
-  (
-    searchedPhones.map(
-      person => <li key={person.name + '_' + persons.length}>{person.name}  {person.number}</li>
-    )
-  )
-  ;
+  console.log(persons, searchedPhones)
 
   return (
     <div>
@@ -68,11 +65,9 @@ const App = (props) => {
       <h2>Add a new entry</h2>
       <NewEntry handleSubmit={handleSubmit} handleChange={handleChange} newName={newName} newNumber={newNumber}/>
       <h2>Numbers</h2>
-      <ul>
-        {renderedNumbers}
-      </ul>
+      <Book persons={persons} searchedPhones={searchedPhones} isSearching={isSearching}/>
     </div>
   )
 }
 
-export default App
+export default App;
