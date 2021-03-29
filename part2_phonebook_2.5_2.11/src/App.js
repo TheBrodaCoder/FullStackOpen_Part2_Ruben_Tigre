@@ -1,16 +1,26 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Book from './Book';
 import Filter from './Filter';
 import NewEntry from './NewEntry';
+import axios from 'axios';
 
 const App = (props) => {
-  const [ persons, setPersons ] = useState(props.persons);
+
+  const [ persons, setPersons ] = useState([]);
   const [ newName, setNewName ] = useState('');
   const [ newNumber, setNewNumber ] = useState('');
   const [ stringToSearch, setStrSearch ] = useState('');
   const [ searchedPhones, setSearchedPhones] = useState([]);
   const [ isSearching, setIsSearching] = useState(false);
 
+  useEffect(() => {
+    console.log('effect')
+    axios.get('http://localhost:3001/persons')
+    .then(response => {
+      console.log('promise fulfilled')
+      setPersons(response.data)
+    })
+  }, [])
 
   const handleChange = (evt) => {
     evt.target.name === 'name' ? 
