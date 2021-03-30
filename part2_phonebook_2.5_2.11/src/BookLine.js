@@ -9,6 +9,9 @@ const BookLine = (props) => {
             <td>
                 {props.number}
             </td>
+            <td>
+                <button name={props.id} onClick={() => props.handleClick(props.id)} >Delete</button>
+            </td>
         </tr>
     )
 }

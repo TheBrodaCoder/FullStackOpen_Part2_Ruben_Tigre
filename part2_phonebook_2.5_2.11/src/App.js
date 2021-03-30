@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Book from './Book';
 import Filter from './Filter';
 import NewEntry from './NewEntry';
-import axios from 'axios';
+import personService from './service/Persons_service';
 
 const App = (props) => {
 
@@ -14,12 +14,11 @@ const App = (props) => {
   const [ isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
-    console.log('effect')
-    axios.get('http://localhost:3001/persons')
-    .then(response => {
-      console.log('promise fulfilled')
-      setPersons(response.data)
-    })
+    personService.getAll().then(response => {setPersons(response.data)}).catch(
+      error => {
+        console.log('Cant resolve persons');
+      }
+    )
   }, [])
 
   const handleChange = (evt) => {
@@ -33,14 +32,24 @@ const App = (props) => {
     evt.preventDefault();
     
     if (newName !== '' && newNumber !== '') {
-      if (!persons.some(person => person.name === newName && person.number === newNumber)) {
+      if (!persons.some(person => person.name === newName || person.number === newNumber)) {
         const newPerson = {
           name: newName,
           number: newNumber
         };
-        setPersons(persons.concat(newPerson));
-        setNewNumber('');
-        setNewName('');
+        
+        personService.addPerson(newPerson).then(
+          response => {
+            setPersons(persons.concat(newPerson)) 
+            setNewNumber('')
+            setNewName('')
+          }
+        ).catch(
+          error=>
+          console.log('error at upload new person', error)
+        )
+
+        
       } else {
         alert(`${newName} or ${newNumber} is already on the phonebook`);
       }
@@ -63,19 +72,26 @@ const App = (props) => {
     let searchedPhone = persons.filter(person => person.name.match(new RegExp(stringToSearch, 'i')));
     setSearchedPhones(searchedPhone);
   }
-  
-  
 
-  console.log(persons, searchedPhones)
+  const handleClick = (id) => {
+    personService.popPerson(id).then(
+      personService.getAll().then(response => {setPersons(response.data)}).catch(
+        error => {
+          console.log('Cant resolve persons');
+        }
+      )
+    );
+    
+  }
 
   return (
-    <div>
+    <div >
       <h2>Phonebook</h2>
       <Filter handleSearch={handleSearch} handleKeyUp={handleKeyUp} stringToSearch={stringToSearch}/>
       <h2>Add a new entry</h2>
       <NewEntry handleSubmit={handleSubmit} handleChange={handleChange} newName={newName} newNumber={newNumber}/>
       <h2>Numbers</h2>
-      <Book persons={persons} searchedPhones={searchedPhones} isSearching={isSearching}/>
+      <Book persons={persons} searchedPhones={searchedPhones} isSearching={isSearching} handleClick={handleClick}/>
     </div>
   )
 }
