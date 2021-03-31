@@ -1,6 +1,7 @@
 import React from 'react';
 
 const BookLine = (props) => {
+
     return (
         <tr>
             <td>
@@ -10,7 +11,7 @@ const BookLine = (props) => {
                 {props.number}
             </td>
             <td>
-                <button name={props.id} onClick={() => props.handleClick(props.id)} >Delete</button>
+                <button name={props.id} onClick={props.handleClick} >Delete</button>
             </td>
         </tr>
     )

@@ -4,6 +4,7 @@ import Filter from './Filter';
 import NewEntry from './NewEntry';
 import personService from './service/Persons_service';
 
+
 const App = (props) => {
 
   const [ persons, setPersons ] = useState([]);
@@ -14,6 +15,7 @@ const App = (props) => {
   const [ isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
+    console.log('effect');
     personService.getAll().then(response => {setPersons(response.data)}).catch(
       error => {
         console.log('Cant resolve persons');
@@ -40,14 +42,22 @@ const App = (props) => {
         
         personService.addPerson(newPerson).then(
           response => {
-            setPersons(persons.concat(newPerson)) 
             setNewNumber('')
             setNewName('')
           }
         ).catch(
           error=>
           console.log('error at upload new person', error)
+        ).finally(
+          () => {
+            personService.getAll().then(response => {setPersons(response.data)}).catch(
+              error => {
+                console.log('Cant resolve persons');
+              }
+            )
+          }
         )
+        
 
         
       } else {
@@ -73,14 +83,24 @@ const App = (props) => {
     setSearchedPhones(searchedPhone);
   }
 
-  const handleClick = (id) => {
-    personService.popPerson(id).then(
-      personService.getAll().then(response => {setPersons(response.data)}).catch(
-        error => {
-          console.log('Cant resolve persons');
+  const handleClick = (evt) => {
+    let deleted = true;
+    let id = evt.target.name;
+
+    personService.popPerson(id).catch(
+      error => {console.log('Cannot resolve delete on json server', error); deleted = false;}
+    ).finally(
+      () => {
+        if (deleted) {
+          personService.getAll().then(response => {setPersons(response.data)}).catch(
+            error => {
+              console.log('Cant resolve persons');
+            }
+          )
         }
-      )
+      }
     );
+    
     
   }
 
