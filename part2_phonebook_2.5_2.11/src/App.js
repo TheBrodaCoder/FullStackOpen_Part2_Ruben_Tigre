@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Book from './Book';
 import Filter from './Filter';
 import NewEntry from './NewEntry';
+import Notification from './Notification';
 import personService from './service/Persons_service';
 
 
@@ -13,15 +14,37 @@ const App = (props) => {
   const [ stringToSearch, setStrSearch ] = useState('');
   const [ searchedPhones, setSearchedPhones] = useState([]);
   const [ isSearching, setIsSearching] = useState(false);
+  const [noti, setNoti] = useState({
+    msj: 'Default msg',
+    display: false,
+    error: false
+  })
 
   useEffect(() => {
-    console.log('effect');
     personService.getAll().then(response => {setPersons(response.data)}).catch(
       error => {
         console.log('Cant resolve persons');
       }
     )
   }, [])
+
+  const handleNoti = (msj, error) => {
+    let newNoti = {
+      msj: msj,
+      display: true,
+      error: error
+    };
+    setNoti(newNoti);
+
+    setTimeout(() => {
+      setNoti({
+      msj: 'Default msg',
+      display: false,
+      error: false
+    })
+  }, 5000);
+
+  }
 
   const handleChange = (evt) => {
     evt.target.name === 'name' ? 
@@ -45,19 +68,20 @@ const App = (props) => {
 
         personService.addPerson(newPerson).then(
           response => {
-            setNewNumber('')
-            setNewName('')
+            setNewNumber('');
+            setNewName('');
           }
         ).catch(
           error=>
-          console.log('error at upload new person', error)
+          handleNoti('error at upload new person ' + error, true)
         ).finally(
           () => {
             personService.getAll().then(response => {setPersons(response.data)}).catch(
               error => {
-                console.log('Cant resolve persons');
+                handleNoti('error at upload new person ' + error, true)
               }
             )
+            handleNoti(`${newPerson.name} is now added to the phonebook`, false);
           }
         )
         
@@ -69,9 +93,10 @@ const App = (props) => {
           let personToUpdate = persons.filter(person => person.name === newName);
          
           personService.updatePerson(personToUpdate[0].id, newPerson).catch(
-            error => console.log('error al actualizar', error)
+            error => handleNoti('error at upload new person ' + error, true)
           ).then(
             (response) => {
+              handleNoti(`${newName} number is already updated`, true)
               setPersons(persons.map(
                 person => person.id !== personToUpdate[0].id ? person : response.data
                 
@@ -107,15 +132,24 @@ const App = (props) => {
     let id = evt.target.name;
 
     personService.popPerson(id).catch(
-      error => {console.log('Cannot resolve delete on json server', error); deleted = false;}
+      error => {
+        handleNoti('error at removing entry. That entry doesnt exist', true);
+        deleted = false;
+        personService.getAll().then(response => {setPersons(response.data)}).catch(
+          error => {
+            handleNoti('error at upload new person ' + error, true)
+          }
+        );
+      }
     ).finally(
       () => {
         if (deleted) {
           personService.getAll().then(response => {setPersons(response.data)}).catch(
             error => {
-              console.log('Cant resolve persons');
+              handleNoti('error at upload new person ' + error, true)
             }
-          )
+          );
+          handleNoti('deleted sucesfully', false);
         }
       }
     );
@@ -123,11 +157,13 @@ const App = (props) => {
     
   }
 
+  
   return (
     <div >
       <h2>Phonebook</h2>
       <Filter handleSearch={handleSearch} handleKeyUp={handleKeyUp} stringToSearch={stringToSearch}/>
       <h2>Add a new entry</h2>
+      <Notification noti={noti}/>
       <NewEntry handleSubmit={handleSubmit} handleChange={handleChange} newName={newName} newNumber={newNumber}/>
       <h2>Numbers</h2>
       <Book persons={persons} searchedPhones={searchedPhones} isSearching={isSearching} handleClick={handleClick}/>

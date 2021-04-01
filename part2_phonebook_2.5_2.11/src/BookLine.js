@@ -1,7 +1,6 @@
 import React from 'react';
 
 const BookLine = (props) => {
-    console.log(props.id);
     return (
         <tr>
             <td>
