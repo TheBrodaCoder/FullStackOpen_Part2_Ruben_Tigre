@@ -11,7 +11,7 @@ const Notification = ({noti}) => {
         <div className='Notification-block' style={{
             borderRadius: '0.5em',
             border: `solid 2px ${noti.error ? 'red' : 'green'}`,
-            backgroundColor: `${noti.error ? 'lightred' : 'lightgreen'}`,
+            backgroundColor: `${noti.error ? '#FD8181' : 'lightgreen'}`,
             display: `block`,
             width: '300px',
             alignItems: 'center'
