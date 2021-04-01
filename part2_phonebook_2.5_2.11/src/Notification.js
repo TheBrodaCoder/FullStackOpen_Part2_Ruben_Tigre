@@ -11,12 +11,15 @@ const Notification = ({noti}) => {
         <div className='Notification-block' style={{
             borderRadius: '0.5em',
             border: `solid 2px ${noti.error ? 'red' : 'green'}`,
+            backgroundColor: `${noti.error ? 'lightred' : 'lightgreen'}`,
             display: `block`,
-            width: '300px'
+            width: '300px',
+            alignItems: 'center'
         }}>
             <p className='Notification-text' style={{
                 color: noti.error ? 'red' : 'green',
-                fontWeight: 300
+                fontWeight: 300,
+                textAlign: 'center'
             }}>{noti.msj}</p>
         </div>
     )
