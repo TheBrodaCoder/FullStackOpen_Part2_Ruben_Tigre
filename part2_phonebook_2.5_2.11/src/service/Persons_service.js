@@ -13,9 +13,13 @@ const popPerson = (id) => {
     return axios.delete(`${baseUrl}/${id}`)
 }
 
+const updatePerson = (id, newObject) => {
+    return axios.put(`${baseUrl}/${id}`, newObject)
+}
 // eslint-disable-next-line
 export default {
     getAll,
     addPerson,
-    popPerson
+    popPerson,
+    updatePerson
 }

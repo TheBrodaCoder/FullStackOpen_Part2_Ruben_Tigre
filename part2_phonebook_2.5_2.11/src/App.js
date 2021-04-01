@@ -34,12 +34,15 @@ const App = (props) => {
     evt.preventDefault();
     
     if (newName !== '' && newNumber !== '') {
-      if (!persons.some(person => person.name === newName || person.number === newNumber)) {
-        const newPerson = {
-          name: newName,
-          number: newNumber
-        };
-        
+
+      const newPerson = {
+        name: newName,
+        number: newNumber
+      };
+      const findPerson = persons.some(person => person.name === newName);
+
+      if (findPerson === false) {
+
         personService.addPerson(newPerson).then(
           response => {
             setNewNumber('')
@@ -58,10 +61,26 @@ const App = (props) => {
           }
         )
         
-
-        
+      }else if (persons.some(person => person.number === newNumber)) {
+        alert(`${newNumber} is already on the phonebook`);
       } else {
-        alert(`${newName} or ${newNumber} is already on the phonebook`);
+        let update = window.confirm(`Do you want to update ${newName} phonenumber`);
+        if (update) {
+          let personToUpdate = persons.filter(person => person.name === newName);
+         
+          personService.updatePerson(personToUpdate[0].id, newPerson).catch(
+            error => console.log('error al actualizar', error)
+          ).then(
+            (response) => {
+              setPersons(persons.map(
+                person => person.id !== personToUpdate[0].id ? person : response.data
+                
+              ))
+              setNewName('');
+              setNewNumber('');
+            }
+          )
+        }
       }
     } else {
       alert('All inputs need to be filled');
